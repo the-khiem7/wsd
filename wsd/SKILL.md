@@ -135,13 +135,19 @@ Phase 6: Verification
 1. DELETE all files under `content/` (will be recreated)
 2. KEEP: `config/`, `layouts/`, `themes/`, `static/`, `archetypes/`, `.github/`, `AGENTS.md`
 3. CREATE directory structure from TOC: `content/<slug>/_index.md` + `_index.vi.md`
+   - `_index.md`: placeholder with front matter only (body will be filled in Phase 3)
+   - `_index.vi.md`: placeholder with front matter only (body will be filled in Phase 5)
+   - Hugo requires `.vi.md` files to exist for Vietnamese pages to appear in navigation;
+     creating them early ensures Hugo build passes at every phase
 4. CREATE `static/images/workshop/`
 5. CREATE `.wsd/` directory (for roadmap file)
 6. CHECK `.gitignore` — ensure `.playwright-mcp/` is listed; add if missing
-7. Verify Hugo build:
+7. Verify Hugo build — use the project's actual config path (check `config/` directory structure):
 
 ```powershell
-hugo --config config/development/hugo.toml --destination tmp-hugo-build
+# Common patterns — pick the one that matches the project:
+hugo --config config/_default/hugo.toml --destination tmp-hugo-build
+# OR: hugo --config config/development/hugo.toml --destination tmp-hugo-build
 Remove-Item -Recurse -Force tmp-hugo-build
 ```
 
@@ -175,6 +181,32 @@ Signs a page needs delegation:
 - Page snapshot exceeds ~8000 words of visible text
 - Code blocks totaling more than 200 lines
 
+### Context Budget Strategy
+
+A typical workshop has 15-25 pages. The main thread cannot hold all pages in context
+simultaneously. Follow this batching strategy:
+
+- **Extract pages sequentially** on the main thread, writing each file immediately after extraction
+- **After ~6-8 pages extracted**, delegate the next batch to a subagent if context is getting heavy
+- **Translation and verification** should ALWAYS be delegated in batches (5-8 pages per subagent)
+- **Update roadmap after each page** so progress survives context compaction
+
+### Playwright `evaluate` for Large Pages
+
+When extracting content from pages with >5000 characters of article text, use the
+`filename` parameter on `browser_evaluate` to save output directly to a file instead
+of returning it into agent context:
+
+```javascript
+playwright_browser_evaluate({
+  filename: ".playwright-mcp/page-content.txt",
+  function: `() => document.querySelector('article').innerText`
+})
+```
+
+Then read the file with `read_file`. This avoids bloating the agent context with raw
+page text that will be reformatted anyway.
+
 ### Workshop Element → Hugo Shortcode Mapping
 
 | Workshop Element | Hugo Shortcode |
@@ -192,10 +224,11 @@ See full procedure in [references/image-download.md](references/image-download.m
 
 Key facts:
 - Images hosted on CloudFront with signed URLs — standard fetch/canvas methods fail
-- Proven method: navigate directly to signed URL, then screenshot the `<img>` element
+- **Primary method:** `Invoke-WebRequest`/`curl` with signed params — fastest for batch download
+- **Fallback method:** Navigate directly to signed URL via Playwright, then screenshot `<img>` element
 - CRITICAL: Replace `%7E` → `~` in extracted URLs
 - Signed params (Key-Pair-Id, Policy, Signature) are reusable across all images
-- Naming: `<page-slug>_<description>.png`
+- Naming: prefer original CDN filename when descriptive; rename only if opaque
 
 ## Phase 5: Vietnamese Translation
 

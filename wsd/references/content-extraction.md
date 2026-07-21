@@ -17,6 +17,20 @@ playwright_browser_snapshot()
 
 Record all text content, headings, code blocks, callouts, tables.
 
+**Tip for large pages:** When the article text exceeds ~5000 characters, use the `filename`
+parameter on `browser_evaluate` to save content directly to a file instead of returning it
+into agent context:
+
+```javascript
+playwright_browser_evaluate({
+  filename: ".playwright-mcp/page-content.txt",
+  function: `() => document.querySelector('article').innerText`
+})
+```
+
+Then read the file separately. This avoids bloating agent context with raw text that will
+be reformatted into markdown anyway.
+
 ### Step 3: Identify Multi-Option Blocks
 
 Look for tab/toggle UI elements (e.g. "AgentCore CLI | Interactive", "macOS/Linux | Windows").

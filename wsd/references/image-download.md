@@ -6,8 +6,39 @@ Workshop images are hosted on CloudFront CDN (`static.us-east-1.prod.workshops.a
 signed URLs. Standard methods (`fetch()`, `canvas.toDataURL()`) fail due to CORS/tainted
 canvas restrictions.
 
-**Proven method:** Navigate directly to the signed image URL, then screenshot the rendered
-`<img>` element.
+## Download Methods (in priority order)
+
+### Primary: `Invoke-WebRequest` / `curl` (Batch Download)
+
+When you have valid signed URL parameters, **use PowerShell `Invoke-WebRequest` or `curl`
+for bulk download** — it is significantly faster than Playwright screenshot (downloads all
+images in seconds vs minutes of one-by-one navigation).
+
+```powershell
+$signedParams = "Key-Pair-Id=<id>&Policy=<base64>&Signature=<sig_with_tildes>"
+$baseUrl = "https://static.us-east-1.prod.workshops.aws/<workshop-uuid>/static"
+$destDir = "static/images/workshop"
+
+$images = @("lab1/image1.png", "lab2/image2.png")  # paths from extraction
+
+foreach ($img in $images) {
+  $url = "$baseUrl/$img`?$signedParams"
+  $filename = $img.Split("/")[-1]
+  Invoke-WebRequest -Uri $url -OutFile "$destDir/$filename"
+}
+```
+
+⚠️ **CRITICAL:** The Signature parameter must contain literal `~` characters (not `%7E`).
+When extracting signed params from `img.src` in the browser, `~` is already decoded.
+
+### Fallback: Playwright Direct Navigation + Screenshot
+
+If `Invoke-WebRequest` fails (network restrictions, proxy issues), fall back to the
+Playwright method: navigate directly to signed URL, then screenshot the `<img>` element.
+
+### Last Resort: Lightbox Screenshot
+
+If signed URLs have expired, use the lightbox method (lowest quality).
 
 ## Per-Page Procedure
 
@@ -94,6 +125,12 @@ Mark "images downloaded" and "images referenced" tasks as complete.
 
 ## Image Naming Convention
 
+Prefer keeping the **original CDN filename** when it is already descriptive (e.g.,
+`part1-architecture.png`, `kiro-in-vibe-mode.png`). Only rename when the original
+name is opaque (e.g., `image001.png`, UUIDs).
+
+If renaming is needed, use these patterns:
+
 | Pattern | Example |
 |---------|---------|
 | Architecture diagrams | `<page>_architecture_diagram.png` |
@@ -132,7 +169,6 @@ Key facts:
 | `canvas.toDataURL()` | Tainted canvas (cross-origin image) |
 | Navigate without signed params | 403 Missing Key-Pair-Id |
 | Navigate with `%7E` (not `~`) | 403 Invalid signature |
-| `Invoke-WebRequest` / `curl` | May work but signed URLs from browser more reliable |
 
 ---
 
