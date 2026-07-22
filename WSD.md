@@ -18,9 +18,10 @@
 7. [Phase 5: Vietnamese Translation](#7-phase-5-vietnamese-translation)
 8. [Phase 6: Verification](#8-phase-6-verification)
 9. [Task Delegation Strategy](#9-task-delegation-strategy)
-10. [Roadmap File Specification](#10-roadmap-file-specification)
-11. [Hugo Conventions Reference](#11-hugo-conventions-reference)
-12. [Error Recovery](#12-error-recovery)
+10. [Phase 7: README Generation](#10-phase-7-readme-generation)
+11. [Roadmap File Specification](#11-roadmap-file-specification)
+12. [Hugo Conventions Reference](#12-hugo-conventions-reference)
+13. [Error Recovery](#13-error-recovery)
 
 ---
 
@@ -616,7 +617,74 @@ STEPS:
 
 ---
 
-## 10. Roadmap File Specification
+## 10. Phase 7: README Generation
+
+### Goal
+
+After all content is extracted, translated, and verified, generate a **workshop-focused
+README.md** at the repository root. This README introduces the workshop content to visitors
+browsing the repo — it is NOT a repo setup guide.
+
+### What to Include
+
+- Workshop title and purpose (1-2 paragraph overview)
+- "What You'll Learn" — bullet list of learning objectives
+- Technologies & services covered (AWS services, tools, frameworks)
+- Prerequisites (knowledge-based, NOT tooling/setup)
+- Lab-by-lab summary (2-4 sentences each: what you build, key concepts)
+- **Key images** — architecture diagrams, workflow diagrams, key screenshots (1-3 per lab max)
+- Estimated duration and difficulty (if mentioned in workshop)
+- Link to original AWS Workshop Studio URL
+
+### What to Exclude
+
+- Repo structure or directory trees
+- Hugo build/run commands
+- Local development setup instructions
+- Contribution guidelines
+- Deployment or hosting instructions
+
+### Procedure
+
+```
+1. READ all extracted content files:
+   content/<path>/_index.md (for every page in roadmap)
+   Focus on: homepage intro, prerequisites, lab introductions, learning objectives
+
+2. IDENTIFY key information:
+   - Workshop title, purpose, target audience
+   - Learning objectives (derive from lab content if not explicitly stated)
+   - Technology stack (AWS services, tools, frameworks actually used)
+   - Lab summaries (what each lab teaches)
+   - Prerequisites (knowledge you should already have)
+
+3. WRITE README.md at repository root:
+   Use clear, inviting language for developers/architects browsing GitHub
+   Present tense for descriptions, future tense for objectives
+   150-400 words for overview; 2-4 sentences per lab summary
+
+4. QUALITY CHECK:
+   - Reads naturally for someone who has never seen the workshop
+   - No repo-specific instructions
+   - All lab summaries are substantive
+   - Workshop URL included for reference
+   - Key images referenced with correct relative paths (static/images/workshop/...)
+   - Architecture/overview diagram placed near the top if one exists
+   - 1-3 images per lab max — only those that add visual understanding
+   - All images have descriptive alt text
+
+5. UPDATE roadmap:
+   Mark README generation as complete
+```
+
+### Delegation
+
+This phase runs on the **main thread**. It requires reading multiple content files and
+synthesizing them — a light task after all extraction is complete. No subagent needed.
+
+---
+
+## 11. Roadmap File Specification
 
 ### File: `WSD.roadmap.md`
 
@@ -696,7 +764,7 @@ This file is CREATED during Phase 1 and UPDATED throughout execution. It is the 
 
 ---
 
-## 11. Hugo Conventions Reference
+## 12. Hugo Conventions Reference
 
 > Quick reference extracted from `AGENTS.md`. For full details, read that file.
 
@@ -762,7 +830,7 @@ Remove-Item -Recurse -Force tmp-hugo-build
 
 ---
 
-## 12. Error Recovery
+## 13. Error Recovery
 
 ### Playwright Session Lost
 
@@ -836,6 +904,12 @@ If image downloads fail with 403:
 │     Compare Hugo md ↔ Workshop live ─── subagent        │
 │     Fix discrepancies                                   │
 │     Final Hugo build                                    │
+└─────────────────────┬───────────────────────────────────┘
+                      ▼
+┌─────────────────────────────────────────────────────────┐
+│ PHASE 7: README Generation (FINALIZATION)               │
+│   Read all content → Compose workshop-focused README.md │
+│   Introduce purpose, objectives, lab summaries          │
 └─────────────────────────────────────────────────────────┘
 ```
 

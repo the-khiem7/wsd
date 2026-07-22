@@ -97,6 +97,10 @@ Phase 3-5: Per-Page Pipeline (for each page in roadmap)
 Phase 6: Verification
   → [Subagent] Compare Hugo markdown ↔ live workshop
   → Fix discrepancies → Final Hugo build
+
+Phase 7: README Generation
+  → Read all extracted content → Compose workshop-focused README.md
+  → Introduce workshop purpose, learning objectives, labs overview
 ```
 
 ## Phase 0: Authentication
@@ -250,6 +254,25 @@ Delegated to subagent. See [references/verification.md](references/verification.
 
 Compare Hugo markdown against live workshop for each page. Check for missing sections,
 truncated code blocks, missing tabs, missing images. Fix discrepancies and re-verify build.
+
+## Phase 7: README Generation
+
+After all content is extracted, translated, and verified, generate a **workshop-focused
+README.md** at the repository root. See [references/readme-generation.md](references/readme-generation.md).
+
+This README is purely about the workshop content — what it teaches, what you'll build,
+and how the labs progress. It is NOT a repo setup guide or Hugo usage doc.
+
+Key rules:
+- **Focus 100%** on workshop content: purpose, learning objectives, lab summaries
+- **DO NOT** describe repo structure, Hugo commands, build instructions, or local setup
+- **DO** include: workshop title, overview, prerequisites, lab-by-lab summary with key takeaways
+- **DO** include a brief "What you'll learn" section and technology stack covered
+- **DO** include key images (architecture diagrams, workflow diagrams, key screenshots)
+  with relative paths (`static/images/workshop/...`) — 1-3 per lab max, prioritize visuals
+  that communicate the most at a glance
+- **Write in English** with clear, inviting language for visitors browsing the repo
+- Source material: all `content/<path>/_index.md` files extracted in Phase 3
 
 ## Task Delegation Strategy
 

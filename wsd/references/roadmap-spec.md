@@ -79,6 +79,7 @@ Ensure `.wsd/` directory exists before writing the roadmap.
 | Images downloaded | All `<img>` from page saved to `static/images/workshop/` | Files exist on disk with descriptive names |
 | Vietnamese translation | `_index.vi.md` created with full translation | File exists, proper Vietnamese, matches EN structure |
 | Verification | Content compared against live workshop | All discrepancies resolved or documented |
+| README generated | Workshop-focused README.md at repo root | File exists with workshop overview, lab summaries, learning objectives |
 
 ## Weight & Pre Convention
 
